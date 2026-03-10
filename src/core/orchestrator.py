@@ -41,10 +41,21 @@ class Orchestrator:
             # 4. Rendre la vidéo
             self.renderer.render_scene_from_code(final_code, f"Scene{sid}")
 
-            # 5. Fusionner l'audio et la vidéo
+            # 5. Fusionner l'audio et la vidéo AVEC UN DÉCALAGE (Padding)
             final_output = os.path.abspath(f"data/outputs/{lecture_title}_scene_{sid}.mp4")
-            print(f"🎬 Fusion finale pour la scène {sid}...")
-            cmd = f"ffmpeg -y -i {video_path} -i {audio_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 {final_output}"
+            print(f"🎬 Fusion finale pour la scène {sid} avec décalage audio...")
+
+            # --- NOUVEAUTÉ : Le décalage (en millisecondes) ---
+            # On décale l'audio de 1000 ms (1 seconde).
+            # Ainsi, Manim a 1 seconde pour dessiner avant que la voix ne commence.
+            delay_ms = 1000
+
+            # La commande FFmpeg utilise le filtre -af "adelay"
+            cmd = (
+                f'ffmpeg -y -i "{video_path}" -i "{audio_path}" '
+                f'-filter_complex "[1:a]adelay={delay_ms}|{delay_ms}[aud]" '
+                f'-map 0:v:0 -map "[aud]" -c:v copy -c:a aac "{final_output}" -loglevel error'
+            )
             os.system(cmd)
 
         print(f"✨ Toutes les scènes individuelles sont prêtes.")

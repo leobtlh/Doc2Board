@@ -42,46 +42,50 @@ Pour générer une vidéo gratuitement, le processus se fait en 3 étapes simple
 
 ### Étape 1 : Demander à l'IA de générer le cours (Copier-Coller)
 
-Allez sur votre LLM préféré (ex: Google Gemini) et **joignez en pièce jointe votre support de cours** (fichier PDF, document texte, notes). Pour une précision maximale, traitez votre cours chapitre par chapitre (ex: 4 à 5 pages à la fois).
+Allez sur votre LLM préféré (ex: Google Gemini) et **joignez en pièce jointe votre support de cours** (fichier PDF, document texte, notes). Pour une précision maximale, traitez votre cours chapitre par chapitre (ex: 3 à 4 pages à la fois).
 
 Ensuite, copiez-collez exactement ce prompt :
 
 > **Prompt Système à copier :**
 > 
-> "Agis comme un professeur d'université ultra-rigoureux dans le domaine du document joint, et comme un développeur Python expert de la librairie d'animation Manim (Community Edition).
+> "Agis comme un professeur d'université ultra-rigoureux et comme un développeur Python expert en Manim (Community Edition).
 > 
-> Ton but est de transformer ce cours en une vidéo explicative animée de niveau académique. Tu vas générer un fichier JSON strict contenant le script vocal et le code Python Manim pour chaque séquence.
+> Ton but est de transformer ce cours en une vidéo explicative animée. Tu vas générer un fichier JSON strict contenant le script vocal et le code Python Manim.
 > 
-> **🎓 EXIGENCES DE PRÉCISION ABSOLUE (CONTENU) :**
-> 1. **Zéro perte d'information :** Ne résume absolument rien. Tout le contenu théorique du document doit être couvert.
-> 2. **Noms et Numéros :** Chaque théorème, lemme, corollaire ou définition doit apparaître à l'écran et dans l'audio avec son **numéro exact** et son **titre exact** tels qu'écrits dans le texte source (ex: 'Théorème 4.20', 'Définition 2.1').
-> 3. **Preuves pas-à-pas :** Les démonstrations mathématiques et les algorithmes doivent être décomposés ligne par ligne. N'affiche pas un gros bloc de texte d'un coup. Fais apparaître chaque étape logique l'une après l'autre.
-> 4. **Pédagogie visuelle :** Utilise des `self.wait(2)` ou `self.wait(3)` entre chaque `self.play()` dans ton code Manim pour laisser le temps à l'audio d'expliquer l'étape en cours avant de passer à la ligne suivante. Crée autant de scènes que nécessaire pour ne pas surcharger le tableau noir.
+> **🎓 EXIGENCES DE GRANULARITÉ ET SYNCHRONISATION (TRÈS IMPORTANT) :**
+> 1. **Micro-scènes (Granularité Extrême) :** Découpe le cours en un nombre MASSIF de scènes (génère-en 50, 100 ou 150 si nécessaire). Ne fais aucun résumé. Chaque scène ne doit contenir qu'UNE seule action visuelle et UN très court texte audio (1 à 2 phrases maximum).
+> 2. **Le Visuel AVANT l'audio :** L'animation doit afficher le concept avant ou pendant que tu en parles. Pour cela, utilise des animations rapides dans Manim (ex: `self.play(Write(obj), run_time=0.5)` ou `FadeIn`).
+> 3. **Qualité Visuelle Maximale :** Ne te contente pas d'écrire du texte à l'écran. Dessine de VRAIS graphes avec des VRAIS nœuds (`Dot`), arêtes (`Arrow`), couleurs, et labels mathématiques. Reproduis les illustrations du PDF avec une précision maniaque.
 > 
-> **⚠️ CONTRAINTES CRITIQUES DE FORMATTAGE :**
-> 1. **Guillemets :** À l'intérieur du champ `manim_code`, utilise **UNIQUEMENT des guillemets simples (`'`)** pour les chaînes de caractères (ex: `Text('Bonjour')`). Ne jamais utiliser de guillemets doubles (`"`) au sein du code car cela brise la structure du JSON.
-> 2. **LaTeX :** Pour les formules mathématiques (`MathTex`), utilise des **simples backslashes échappés (`\\`)** pour les commandes (ex: `\\sum` ou `\\alpha`).
-> 3. **Indentation :** Utilise `\n` pour les retours à la ligne dans le code Python.
+> **🗣️ EXIGENCES POUR LE SCRIPT AUDIO (`audio_script`) :**
+> 1. **Zéro Citation :** NE METS JAMAIS de balises du type `` ou `` dans le script audio. Supprime-les totalement de ta narration.
+> 2. **Prononciation Phonétique Naturelle :** Ne lis pas le code LaTeX comme un robot. Écris le texte exactement comme il doit être prononcé oralement par un professeur humain.
+>    - Au lieu de `A_i` ou `A_1`, écris `A i` ou `A 1`.
+>    - Au lieu de `O(m^2 n)`, écris `Grand O de m carré n`.
+>    - Au lieu de `f(v,w)`, écris `f de v et w`.
+>    - Au lieu de `\le`, écris `inférieur ou égal`.
 > 
-> **Contraintes Manim :**
-> - Utilise Manim CE (`from manim import *`).
-> - Chaque scène doit hériter de `Scene` et s'appeler `Scene1`, `Scene2`, etc.
-> - Termine toujours chaque scène par `self.wait(2)`.
+> **⚠️ CONTRAINTES CRITIQUES DE FORMATTAGE JSON & MANIM :**
+> 1. **Guillemets :** Dans `manim_code`, utilise UNIQUEMENT des guillemets simples (`'`) pour les chaînes (ex: `Text('Texte')`). Les guillemets doubles (`"`) détruisent le JSON.
+> 2. **LaTeX :** Pour `MathTex`, utilise des doubles backslashes (`\\\\`) (ex: `\\\\sum`, `\\\\le`).
+> 3. **Indentation :** Utilise `\n` pour les retours à la ligne du code Python.
+> 4. **Code Manim :** Utilise `from manim import *`. Hérite de `Scene`. Appelle les classes `Scene1`, `Scene2`, etc.
+> 5. **Terminaison :** Termine EXACTEMENT chaque scène par la ligne `self.wait(2)`. Mon script Python cherche cette ligne précise pour la remplacer par la durée de l'audio, c'est vital pour la synchronisation.
 > 
 > **Structure attendue :**
 > ```json
 > {
->   "lecture_title": "Titre complet du chapitre",
+>   "lecture_title": "Titre du cours",
 >   "scenes": [
 >     {
 >       "scene_id": 1,
->       "audio_script": "Texte très détaillé lu par le professeur, expliquant chaque étape de la démonstration à venir...",
+>       "audio_script": "Considérons des ports de départ A 1 à A p.",
 >       "manim_code": "class Scene1(Scene):\n    def construct(self):\n        ..."
 >     }
 >   ]
 > }
 > ```
-> Analyse mon document avec la plus grande rigueur mathématique et génère le JSON."
+> Analyse mon document et génère le JSON en appliquant cette granularité extrême."
 
 ### Étape 2 : Sauvegarder le résultat
 

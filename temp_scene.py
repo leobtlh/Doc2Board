@@ -1,21 +1,15 @@
 from manim import *
 
-class Scene4(Scene):
+class Scene30(Scene):
     def construct(self):
-        alg_title = Text('Algorithme d\'Edmonds-Karp', font_size=36).to_edge(UP)
-        step1 = Text('1. Initialiser le flot à 0', font_size=28).shift(UP)
-        step2 = Text('2. Trouver le chemin le plus court (BFS)', font_size=28)
-        step3 = Text('3. Augmenter le flot et répéter', font_size=28).shift(DOWN)
-        
-        complexity = MathTex('\\mathcal{O}(m^2 n)', color=GREEN).next_to(step3, DOWN, buff=0.8)
-        
-        self.play(Write(alg_title))
-        self.play(Write(step1))
-        self.wait(0.5)
-        self.play(Write(step2))
-        self.wait(0.5)
-        self.play(Write(step3))
-        self.wait(1)
-        self.play(Indicate(complexity))
-        self.play(Write(complexity))
-        self.wait(21.408)
+        cor_430 = Text('Corollaire 4.30 : Complexité', font_size=32, color=YELLOW)
+        self.play(Write(cor_430))
+        self.wait(21.72)
+        self.play(cor_430.animate.to_edge(UP))
+        comp = MathTex('\\mathcal{O}(m^2 n)', font_size=48, color=BLUE)
+        comp.next_to(cor_430, DOWN, buff=1)
+        self.play(Write(comp))
+        self.wait(3)
+        box = SurroundingRectangle(comp, color=WHITE)
+        self.play(Create(box))
+        self.wait(3)
