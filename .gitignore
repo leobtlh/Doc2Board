@@ -1,0 +1,12 @@
+# Ignorer les dossiers de données (pour ne pas commit tes cours ou les vidéos lourdes)
+data/
+media/
+__pycache__/
+*.pyc
+
+# Ignorer les clés API (pour le futur, très important !)
+.env
+
+# Ignorer les environnements virtuels Python
+venv/
+env/
