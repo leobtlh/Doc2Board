@@ -19,15 +19,17 @@ class Orchestrator:
         with open(json_path, 'r') as f:
             data = json.load(f)
 
-        lecture_title = data.get("lecture_title", "cours").replace(" ", "_")
+        # Nettoyage du titre
+        lecture_title = data.get("lecture_title", "cours").replace(" ", "_").replace(":", "")
 
         for scene_data in data["scenes"]:
             sid = scene_data["scene_id"]
             script = scene_data["audio_script"]
             manim_code = scene_data["manim_code"]
 
-            audio_path = f"data/temp/audio_{sid}.mp3"
-            video_path = f"data/temp/videos/temp_scene/480p15/Scene{sid}.mp4"
+            # Chemins absolus pour FFmpeg
+            audio_path = os.path.abspath(f"data/temp/audio_{sid}.mp3")
+            video_path = os.path.abspath(f"data/temp/videos/temp_scene/480p15/Scene{sid}.mp4")
 
             # 2. Générer l'audio
             await self.tts.generate_audio(script, audio_path)
@@ -40,7 +42,7 @@ class Orchestrator:
             self.renderer.render_scene_from_code(final_code, f"Scene{sid}")
 
             # 5. Fusionner l'audio et la vidéo
-            final_output = f"data/outputs/{lecture_title}_scene_{sid}.mp4"
+            final_output = os.path.abspath(f"data/outputs/{lecture_title}_scene_{sid}.mp4")
             print(f"🎬 Fusion finale pour la scène {sid}...")
             cmd = f"ffmpeg -y -i {video_path} -i {audio_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 {final_output}"
             os.system(cmd)
@@ -51,16 +53,19 @@ class Orchestrator:
         self.concatenate_scenes(lecture_title, len(data["scenes"]))
 
     def concatenate_scenes(self, lecture_title, scene_count):
-        lecture_title_clean = lecture_title.replace(" ", "_")
+        lecture_title_clean = lecture_title.replace(" ", "_").replace(":", "")
         list_path = "data/temp/concat_list.txt"
         final_output = f"data/outputs/{lecture_title_clean}_FULL.mp4"
 
         with open(list_path, "w") as f:
             for i in range(1, scene_count + 1):
-                # Utilisation d'un chemin relatif pour FFmpeg concat
-                f.write(f"file '../../data/outputs/{lecture_title_clean}_scene_{i}.mp4'\n")
+                # On vérifie si le fichier existe avant de l'ajouter à la liste
+                file_path = os.path.abspath(f"data/outputs/{lecture_title_clean}_scene_{i}.mp4")
+                if os.path.exists(file_path):
+                    f.write(f"file '{file_path}'\n")
 
-        print(f"🔗 Assemblage final en cours...")
-        cmd = f"ffmpeg -y -f concat -safe 0 -i {list_path} -c copy {final_output}"
+        print(f"🔗 Assemblage final des scènes disponibles...")
+        # L'option -safe 0 est nécessaire pour les chemins absolus
+        cmd = f"ffmpeg -y -f concat -safe 0 -i {list_path} -c copy {final_output} -loglevel error"
         os.system(cmd)
-        print(f"✅ Vidéo complète disponible : {final_output}")
+        print(f"✅ Vidéo finale prête : {final_output}")

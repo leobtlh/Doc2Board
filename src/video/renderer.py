@@ -14,6 +14,10 @@ class VideoRenderer:
         """
         Prend une chaîne de caractères (code python) et la transforme en vidéo.
         """
+        # Injection de l'import si manquant
+        if "from manim import *" not in code_string:
+            code_string = "from manim import *\n\n" + code_string
+
         # 1. Sauvegarder le code dans un fichier temporaire
         temp_file = "temp_scene.py"
         with open(temp_file, "w") as f:
