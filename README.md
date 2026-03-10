@@ -50,24 +50,27 @@ Ensuite, copiez-collez exactement ce prompt :
 > 
 > "Agis comme un professeur expert dans le domaine du document joint, et comme un développeur Python expert de la librairie d'animation Manim (Community Edition).
 > 
-> Je t'ai fourni mon support de cours. Ton but est de transformer ce cours en une vidéo explicative animée. Pour cela, tu vas me générer un fichier JSON strict contenant deux choses pour chaque séquence : ce que le professeur va dire à l'oral (le script vocal), et le code Python Manim exact pour dessiner les concepts visuels correspondants au tableau au même moment.
+> Ton but est de transformer ce cours en une vidéo explicative animée. Tu vas générer un fichier JSON strict contenant le script vocal et le code Python Manim pour chaque séquence.
 > 
-> Contraintes pour le code Manim :
-> 1. Utilise Manim CE (`from manim import *`).
-> 2. Le code doit être complet, fonctionnel, et ne pas contenir de variables non définies.
-> 3. Chaque scène doit hériter de `Scene` et s'appeler `Scene1`, `Scene2`, etc.
+> **⚠️ CONTRAINTES CRITIQUES DE FORMATTAGE :**
+> 1. **Guillemets :** À l'intérieur du champ `manim_code`, utilise **UNIQUEMENT des guillemets simples (`'`)** pour les chaînes de caractères (ex: `Text('Bonjour')`). Ne jamais utiliser de guillemets doubles (`"`) au sein du code car cela brise la structure du JSON.
+> 2. **LaTeX :** Pour les formules mathématiques (`MathTex`), utilise des **doubles backslashes (`\\\\`)** pour échapper les caractères (ex: `\\\\sum` ou `\\\\alpha`).
+> 3. **Indentation :** Utilise `\n` pour les retours à la ligne dans le code Python.
 > 
-> Contraintes pour le JSON :
-> Ne renvoie QUE du JSON valide. Pas de texte avant, pas de texte après.
-> Voici la structure attendue :
+> **Contraintes Manim :**
+> - Utilise Manim CE (`from manim import *`).
+> - Chaque scène doit hériter de `Scene` et s'appeler `Scene1`, `Scene2`, etc.
+> - Termine chaque scène par `self.wait(2)`.
+> 
+> **Structure attendue :**
 > ```json
 > {
 >   "lecture_title": "Titre du cours",
 >   "scenes": [
 >     {
 >       "scene_id": 1,
->       "audio_script": "Bonjour et bienvenue dans ce cours. Aujourd'hui, nous allons parler de...",
->       "manim_code": "class Scene1(Scene):\n    def construct(self):\n        title = Text('Titre du cours')\n        self.play(Write(title))\n        self.wait(2)"
+>       "audio_script": "Texte lu par l'IA",
+>       "manim_code": "class Scene1(Scene):\n    def construct(self):\n        ..."
 >     }
 >   ]
 > }
